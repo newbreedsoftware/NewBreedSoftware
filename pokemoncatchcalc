@@ -1,0 +1,139 @@
+Public Function CalcCatch(CurrentHP As Integer, MaxHP As Integer, PBCR As Integer)
+Dim Step As Integer, MagicNumber As Integer, Temp(1 To 10) As Integer, CheckBCR As String
+
+Step = 1
+
+For Step = 1 To 10
+
+    Select Case Step
+    
+        Case 1 'First step, is it a Ghost Marowak?
+        
+            If LCase(PokemonName) = "ghost marowak" Then
+                stat = "you have a 0% chance of catching that Pokemon!"
+              Exit Function
+            End If
+        
+        
+        Case 2 'Second step, are you using Master Ball?
+        
+            If Option4.Value = True Then 'Masterball
+                PokeBallType = 0
+                stat = "Using a Master ball means automatic catch!"
+                Exit Function
+            End If
+        
+        
+        Case 3 'Third step, check Poke ball type
+        
+            If Option1.Value = True Then 'Pokeball
+                PokeBallType = Fix(Int(255 * Rnd))
+            ElseIf Option2.Value = True Then 'GreatBall
+                PokeBallType = Fix(Int(200 * Rnd))
+            ElseIf Option3.Value = True Then 'Ultraball
+                PokeBallType = Fix(Int(150 * Rnd))
+            End If
+                stat = "Pokeball type saved!"
+                
+        
+        Case 4 'Fourth step, status effects
+        
+        If Option5.Value = True Then 'Asleep
+                StatusEffect = "25"
+            ElseIf Option6.Value = True Then 'Frozen
+                StatusEffect = "25"
+            ElseIf Option7.Value = True Then 'Poisoned
+                StatusEffect = "10"
+            ElseIf Option8.Value = True Then 'Burned
+                StatusEffect = "10"
+            ElseIf Option9.Value = True Then 'Paralyzed
+                StatusEffect = "10"
+            ElseIf Option10.Value = True Then 'No Effect
+                StatusEffect = "0"
+        End If
+        stat = "Status effect saved!"
+        
+        
+        Case 5 'Fifth step, subtract status effect (step4) from Pokeball type (Step 3) and store it into our temp(1) array
+        
+        Temp(1) = PokeBallType - StatusEffect
+        
+        
+        Case 6 'Sixth step, if the sum of Pokeballtype - StatusEffect is less than (<) 0, we get the pokemon!
+        
+            If Temp(1) < 0 Then
+                isCaught = True
+                stat = "Catch that Pokemon!"
+                Exit Function
+            End If
+        
+        
+        Case 7 'Seventh step, calculate another random number
+        
+        Temp(2) = MaxHP * 255 'get our random number by multiplying our MaxHP value by 255
+        
+            If Option2.Value = True Then 'if Greatball is selected, we divide our random number by 8
+                Temp(2) = Temp(2) / 8
+            Else 'if any other ball besides Greatball or Masterball is selected, we divide by 12
+                Temp(2) = Temp(2) / 12
+            End If
+        
+        Temp(3) = CurrentHP / 4 'divide CurrentHP value by 4
+        
+        Temp(4) = Fix(Temp(2) / Temp(3)) 'divide the results in our Temp(2) array by our Temp(3) results
+    
+            If Temp(4) > 255 Then 'if our Temp(4) array has a higher than 255, we set it to 255
+                Temp(4) = 255
+            End If
+        
+        
+        Case 8 'Eigth step, lets get the BCR of our Pokemon
+        
+        
+        If BCR < PokeBallType Then 'if our BCR is less than our PokeBallType value, we most likely will NOT catch the pokemon
+        stat = "The Pokemon will break free if you try to catch it!"
+        Exit Function
+        End If
+        
+        
+        Case 9 'Ninth step, generate a random number
+        
+        Temp(5) = Fix(Int(255 * Rnd)) 'generate a random number with a range of 0 - 255
+        
+        
+        Case 10 'Tenth step, calculate results
+        
+        CheckBCR = 0 'reset our arrays back to default
+        CatchPercent = 0 '
+        CheckBCR = PokeBallType / BCR 'divide our PokeBallType by our BCR to get our 'catch percent'
+        
+        If Len(CheckBCR) > 1 Then 'Check length of result, if result is only 1 character, we must have returned a perfect (1) result!
+        CheckBCR = GrabData(CheckBCR, ".", Len(CheckBCR)) 'Since our returned value above will be in decimal format
+        CatchPercent = Mid(CheckBCR, 1, 2)                'we get the value behind the decimal as far back as the hundredth position.
+        ElseIf Len(CheckBCR) = 1 And CheckBCR = " " Then  'error prevention, I was getting some blank results for some reason.
+        Call CalcCatch(CurrentHP, MaxHP, BCR)
+        Exit Function
+        Else
+        CatchPercent = "100"
+        End If
+        
+            
+            If Temp(5) <= Temp(1) Then 'if the value of Temp(5) is less than or equal to Temp(1), we automatically catch the Pokemon!
+            stat = "Estimated percent of catch is: " & CatchPercent & "%" 'return our perfect (100%) result!
+            Exit Function
+            Else
+            stat = "Estimated percent of catch is: " & CatchPercent & "%" 'return our percent of catching
+            Exit Function
+            End If
+            
+
+    End Select
+    
+
+Next Step
+
+    
+
+
+
+End Function
